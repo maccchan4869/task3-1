@@ -2,50 +2,65 @@ window.onload = () => {
   const tasks = [];
   const btnAddTask = document.getElementById('btnAddTask');
   const tbody = document.getElementById('tbodyTasks');
-
-  /** @member {object} dispItem  - 表示する文字列 */
-  const dispItem = {
-    work: '作業中',
-    delete: '削除'
-  };
-
+  const taskStatus = {
+    working: '0',   // 作業中
+    complete: '1'   // 完了
+  }
+  
   // 追加ボタン押下時の処理
   btnAddTask.addEventListener('click', () => {
-
-    // 入力値を配列に追加
-    tasks.push(document.getElementById('textInputTask').value);
-
-    // タスクを表示
+    tasks.push({
+      content: document.getElementById('textInputTask').value,
+      status: taskStatus.working
+    });
     dispTask();
-
-    // テキストボックスを初期化
     document.getElementById('textInputTask').value = '';
   });
 
-  // タスクの表示処理
+  /**
+   * タスクを表示
+   */
   const dispTask = () => {
-    // 子要素を削除
-    tbody.innerHTML = '';
-
+    // IDを再設定するため一度タスクを削除
+    tbody.textContent = '';
     tasks.forEach((value, index) => {
-      // 新規行追加
-      const newRow = tbody.insertRow();
-
-      // ID描画
-      const newId = newRow.insertCell();
-      newId.innerHTML = index;
-
-      // コメント描画
-      const newComment = newRow.insertCell();
-      newComment.innerHTML = value;
-
-      // 状態（作業中）ボタン描画
-      const newBtnWork = newRow.insertCell();
-      newBtnWork.innerHTML = '<input type="button" value="' + dispItem.work + '" />';
-
-      // 削除ボタン描画
-      const newBtnDelete = newRow.insertCell();
-      newBtnDelete.innerHTML = '<input type="button" value="' + dispItem.delete + '" />';
+      const row = document.createElement('tr');
+      const statusVal = value.status === taskStatus.working ? '作業中' : '完了';
+      // 行追加
+      row.appendChild(createCell(index));
+      row.appendChild(createCell(value.content));
+      row.appendChild(createButton(statusVal, 'changeStatus'));
+      row.appendChild(createButton('削除', 'deleteTask'));
+      tbody.appendChild(row);
     });
+  };
+
+  /**
+   * Cellを生成
+   *  
+   * @param {string} value  - cellの文字
+   * @return {object} cell  - cellのDOM
+   */
+  const createCell = (value) => {
+    const cell = document.createElement('td');
+    cell.textContent = value;
+    return cell;
+  };
+
+  /**
+   * ボタンのCellを生成
+   *  
+   * @param {string} value      - ボタンの文字 
+   * @param {string} className  - 付与するクラス名
+   * @return {object} cell      - buttonCellのDOM
+   */
+  const createButton = (value, className) => {
+    const cell = document.createElement('td');
+    const button = document.createElement('input');
+    button.classList.add(className);
+    button.type = 'button';
+    button.value = value;
+    cell.appendChild(button);
+    return cell;
   };
 };
